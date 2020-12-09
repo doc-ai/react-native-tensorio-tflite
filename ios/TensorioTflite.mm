@@ -1,5 +1,8 @@
 #import "TensorioTflite.h"
 
+#import <TensorIO/TIOModel.h>
+#import <TensorIO/TIOModelBackend.h>
+
 @implementation TensorioTflite
 
 RCT_EXPORT_MODULE()
@@ -11,9 +14,10 @@ RCT_REMAP_METHOD(multiply,
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
-  NSNumber *result = @([a floatValue] * [b floatValue]);
-
-  resolve(result);
+    NSString *backend = [TIOModelBackend availableBackend];
+    
+    NSNumber *result = @([a floatValue] * [b floatValue]);
+    resolve(result);
 }
 
 @end
