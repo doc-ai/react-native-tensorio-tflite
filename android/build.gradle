@@ -8,7 +8,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:4.1.1'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
@@ -29,13 +29,13 @@ android {
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
   buildToolsVersion getExtOrDefault('buildToolsVersion')
   defaultConfig {
-    minSdkVersion 16
+    minSdkVersion 22
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
     versionCode 1
     versionName "1.0"
-    
+
   }
-  
+
   buildTypes {
     release {
       minifyEnabled false
@@ -45,8 +45,21 @@ android {
     disable 'GradleCompatible'
   }
   compileOptions {
+    coreLibraryDesugaringEnabled true
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  aaptOptions {
+    noCompress "tflite"
+  }
+
+  packagingOptions {
+    pickFirst 'META-INF/ASL-2.0.txt'
+    pickFirst 'draftv4/schema'
+    pickFirst 'draftv3/schema'
+    pickFirst 'META-INF/LICENSE'
+    pickFirst 'META-INF/LGPL-3.0.txt'
   }
 }
 
@@ -127,4 +140,12 @@ dependencies {
   // noinspection GradleDynamicVersion
   api 'com.facebook.react:react-native:+'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
+
+  // implementation 'com.github.doc-ai.tensorio-android:core:0.9.13'
+  // implementation 'com.github.doc-ai.tensorio-android:tflite:0.9.13'
+
+  implementation 'com.github.doc-ai.tensorio-android:core:dev-target-sdks-SNAPSHOT'
+  implementation 'com.github.doc-ai.tensorio-android:tflite:dev-target-sdks-SNAPSHOT'
+
 }
