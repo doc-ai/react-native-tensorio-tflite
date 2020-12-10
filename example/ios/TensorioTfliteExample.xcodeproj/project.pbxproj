@@ -13,6 +13,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		20F357B024636CDF00C146DC /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F357AF24636CDF00C146DC /* File.swift */; };
+		E375419B2582A8F600789605 /* image-classification.tiobundle in Resources */ = {isa = PBXBuildFile; fileRef = E375419A2582A8F600789605 /* image-classification.tiobundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		4D7192F03A36A017E887435B /* Pods-TensorioTfliteExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TensorioTfliteExample.release.xcconfig"; path = "Target Support Files/Pods-TensorioTfliteExample/Pods-TensorioTfliteExample.release.xcconfig"; sourceTree = "<group>"; };
 		871719007ECC5EAD276C345C /* Pods-TensorioTfliteExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TensorioTfliteExample.debug.xcconfig"; path = "Target Support Files/Pods-TensorioTfliteExample/Pods-TensorioTfliteExample.debug.xcconfig"; sourceTree = "<group>"; };
 		BCEA90A70F4BEAD7E9FA28B2 /* libPods-TensorioTfliteExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TensorioTfliteExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E375419A2582A8F600789605 /* image-classification.tiobundle */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "image-classification.tiobundle"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -89,6 +91,7 @@
 			children = (
 				20F357AF24636CDF00C146DC /* File.swift */,
 				20F357AE24636CDF00C146DC /* TensorioTfliteExample-Bridging-Header.h */,
+				E375419A2582A8F600789605 /* image-classification.tiobundle */,
 				13B07FAE1A68108700A75B9A /* TensorioTfliteExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -171,6 +174,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E375419B2582A8F600789605 /* image-classification.tiobundle in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);

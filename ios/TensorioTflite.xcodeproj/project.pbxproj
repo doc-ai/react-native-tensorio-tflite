@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-
-
 		5E555C0D2413F4C50049A1A2 /* TensorioTflite.mm in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* TensorioTflite.mm */; };
+		E37541A02582B00000789605 /* TensorioPixelBufferUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = E375419F2582B00000789605 /* TensorioPixelBufferUtilities.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,11 +25,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libTensorioTflite.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTensorioTflite.a; sourceTree = BUILT_PRODUCTS_DIR; };
-
-
 		B3E7B5881CC2AC0600A0062D /* TensorioTflite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TensorioTflite.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* TensorioTflite.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TensorioTflite.mm; sourceTree = "<group>"; };
-
+		E375419E2582AFEA00789605 /* TensorioPixelBufferUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TensorioPixelBufferUtilities.h; sourceTree = "<group>"; };
+		E375419F2582B00000789605 /* TensorioPixelBufferUtilities.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TensorioPixelBufferUtilities.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,11 +53,10 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-
-
 				B3E7B5881CC2AC0600A0062D /* TensorioTflite.h */,
 				B3E7B5891CC2AC0600A0062D /* TensorioTflite.mm */,
-
+				E375419E2582AFEA00789605 /* TensorioPixelBufferUtilities.h */,
+				E375419F2582B00000789605 /* TensorioPixelBufferUtilities.mm */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -121,10 +118,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-
-
+				E37541A02582B00000789605 /* TensorioPixelBufferUtilities.mm in Sources */,
 				5E555C0D2413F4C50049A1A2 /* TensorioTflite.mm in Sources */,
-
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,7 +232,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = TensorioTflite;
 				SKIP_INSTALL = YES;
-
 			};
 			name = Debug;
 		};
@@ -254,7 +248,6 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = TensorioTflite;
 				SKIP_INSTALL = YES;
-
 			};
 			name = Release;
 		};
