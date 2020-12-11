@@ -71,27 +71,13 @@ RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
 
 RCT_EXPORT_MODULE()
 
-// Example method
-// See // https://facebook.github.io/react-native/docs/native-modules-ios
-
-RCT_REMAP_METHOD(multiply,
-                 multiplyWithA:(nonnull NSNumber*)a withB:(nonnull NSNumber*)b
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
-{
-    NSString *backend = [TIOModelBackend availableBackend];
-    
-    NSNumber *result = @([a floatValue] * [b floatValue]);
-    resolve(result);
-}
-
 /// Bridged method that loads a model given a model path. Relative paths will be loaded from the application bundle.
 
 RCT_EXPORT_METHOD(load:(NSString*)path
                   name:(nullable NSString*)name
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject) {
-    // dispatch once
+    
     if (self.models == nil) {
         self.models = [[NSMutableDictionary alloc] init];
     }
@@ -101,6 +87,7 @@ RCT_EXPORT_METHOD(load:(NSString*)path
     }
     
     if (self.models[name] != nil) {
+        // TODO: reject
         return;
     }
     
@@ -117,7 +104,10 @@ RCT_EXPORT_METHOD(unload:(NSString*)name
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject) {
     
-    // TODO: Error Checking
+    if (self.models[name] == nil) {
+        // TODO: Reject
+        return;
+    }
     
     [self.models[name] unload];
     self.models[name] = nil;
@@ -178,7 +168,10 @@ RCT_EXPORT_METHOD(run:(NSString*)name
     
     // Perform inference
     
-    NSDictionary *results = (NSDictionary*)[model runOn:preparedInputs];
+    // TODO: Error Checking
+    
+    NSError *error;
+    NSDictionary *results = (NSDictionary*)[model runOn:preparedInputs error:&error];
     
     // Prepare outputs, converting pixel buffer outputs to base64 encoded jpeg string data
     
@@ -215,7 +208,7 @@ RCT_EXPORT_METHOD(run:(NSString*)name
     NSString *absolutePath;
 
     if ([self isAbsoluteFilepath:path]) {
-            absolutePath = path;
+        absolutePath = path;
     } else {
         if ([path.pathExtension isEqualToString:TIOModelBundleExtension]) {
             path = [path stringByDeletingPathExtension];
@@ -307,7 +300,7 @@ RCT_EXPORT_METHOD(run:(NSString*)name
 }
 
 /// Prepares a pixel buffer input given an image encoding dictionary sent from javascript,
-///  converting a base64 encoded string or reading data from the file system.
+/// converting a base64 encoded string or reading data from the file system.
 
 - (nullable TIOPixelBuffer*)pixelBufferForInput:(NSDictionary*)input {
     
@@ -402,6 +395,8 @@ RCT_EXPORT_METHOD(run:(NSString*)name
 // MARK: - Image Classification Utilities
 
 /// Bridged utility method for image classification models that returns the top N probability label-scores.
+
+// TODO: Remove and implement in javasript
 
 RCT_EXPORT_METHOD(topN:(NSUInteger)count
                   threshold:(float)threshold
