@@ -14,11 +14,15 @@ export default function App() {
 
     const imageAsset = Platform.OS === 'ios' ? 'elephant' : 'elephant.jpg';
     const imageFormat = 6; // asset
-
+  
     TensorioTflite.run('classifier', {
       'image': {
-        'RNTIOImageKeyFormat': imageFormat,
-        'RNTIOImageKeyData': imageAsset
+        // 'RNTIOImageKeyFormat': imageFormat,
+        // 'RNTIOImageKeyData': imageAsset
+        
+        // Can export from native code and works fine, but typescript raises type error
+        [TensorioTflite.imageKeyFormat]: TensorioTflite.imageTypeAsset,
+        [TensorioTflite.imageKeyData]: imageAsset
       }
     }).then((output) => {
       // @ts-ignore

@@ -54,10 +54,32 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * React Native override for exported constants
    */
 
-  // TODO: implement
-
   override fun getConstants(): Map<String, Any> {
-    val constants: Map<String, Any> = HashMap()
+    val constants: HashMap<String, Any> = HashMap()
+
+    constants["imageKeyData"]         = "RNTIOImageKeyData"
+    constants["imageKeyFormat"]       = "RNTIOImageKeyFormat"
+    constants["imageKeyWidth"]        = "RNTIOImageKeyWidth"
+    constants["imageKeyHeight"]       = "RNTIOImageKeyHeight"
+    constants["imageKeyOrientation"]  = "RNTIOImageKeyOrientation"
+
+    constants["imageTypeUnknown"]     = ImageFormat.Unknown.value
+    constants["imageTypeARGB"]        = ImageFormat.ARGB.value
+    constants["imageTypeBGRA"]        = ImageFormat.BGRA.value
+    constants["imageTypeJPEG"]        = ImageFormat.JPEG.value
+    constants["imageTypePNG"]         = ImageFormat.PNG.value
+    constants["imageTypeFile"]        = ImageFormat.File.value
+    constants["imageTypeAsset"]       = ImageFormat.Asset.value
+
+    constants["imageOrientationUp"]             = 1
+    constants["imageOrientationUpMirrored"]     = 2
+    constants["imageOrientationDown"]           = 3
+    constants["imageOrientationDownMirrored"]   = 4
+    constants["imageOrientationLeftMirrored"]   = 5
+    constants["imageOrientationRight"]          = 6
+    constants["imageOrientationRightMirrored"]  = 7
+    constants["imageOrientationLeft"]           = 8
+
     return constants
   }
 
