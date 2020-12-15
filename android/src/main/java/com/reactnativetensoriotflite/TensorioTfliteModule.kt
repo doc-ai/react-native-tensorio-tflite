@@ -16,6 +16,25 @@ import java.nio.ByteBuffer
 
 class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
+  // RNTIOImageKeyFormat
+    // RNTIOImageKeyData
+    // RNTIOImageKeyWidth
+    // RNTIOImageKeyHeight
+
+  enum class ImageFormat(val value: Int) {
+    Unknown(0), // RNTIOImageDataTypeUnknown
+    ARGB(1),    // RNTIOImageDataTypeARGB
+    BGRA(2),    // RNTIOImageDataTypeBGRA
+    JPEG(3),    // RNTIOImageDataTypeJPEG
+    PNG(4),     // RNTIOImageDataTypePNG
+    File(5),    // RNTIOImageDataTypeFile
+    Asset(6);   // RNTIOImageDataTypeAsset
+
+    companion object {
+      fun valueOf(value: Int) = ImageFormat.values().first { it.value == value }
+    }
+  }
+
   /**
    * maps path or model names to loaded models, allowing the module to load,
    * and use more than one model at a time.
@@ -227,10 +246,8 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
         })
     }
 
-    // TODO: error handling
-
     if (error) {
-
+      return null
     }
 
     return preparedInputs
@@ -263,10 +280,8 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
         })
     }
 
-    // TODO: error handling
-
     if (error) {
-
+      return null
     }
 
     return preparedOutputs
@@ -288,66 +303,73 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
   }
 
   /**
+   * Converts base64 encoded JPEG or PNG to Bitmap
+   */
+
+  private fun bitmapForBase64Data(string: String): Bitmap? {
+    val bytes = Base64.decode(string, Base64.DEFAULT)
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+  }
+
+  /**
+   * Converts base64 encoded pixels to Bitmap
+   */
+
+  private fun bitmapForBase64Pixels(string: String, width: Int, height: Int, format: Bitmap.Config): Bitmap {
+    val bytes = Base64.decode(string, Base64.DEFAULT)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val intbuffer = ByteBuffer.wrap(bytes).asIntBuffer()
+    val ints = IntArray(intbuffer.remaining())
+
+    intbuffer.get(ints)
+    bitmap.setPixels(ints, 0, 0, 0, 0, width, height)
+
+    return bitmap
+  }
+
+  /**
    * Prepares a pixel buffer input given an image encoding dictionary sent from javascript,
    * converting a base64 encoded string or reading data from the file system.
    */
 
   // TODO: Test all conversions
-  // TODO: Use some kind of enum for when matching
 
   private fun bitmapForInput(input: Map<String, Any>): Bitmap? {
-    val format = input["RNTIOImageKeyFormat"] as Double // double! gross
+    val format = ImageFormat.valueOf((input["RNTIOImageKeyFormat"] as Double).toInt())
 
-    val bitmap =  when (format) {
-      0.toDouble() -> { // RNTIOImageDataTypeUnknown
-        null
-      }
-      1.toDouble() -> { // RNTIOImageDataTypeARGB
+    return when (format) {
+      ImageFormat.ARGB -> {
         val string = input["RNTIOImageKeyData"] as String
-        val bytes = Base64.decode(string, Base64.DEFAULT)
         val width = (input["RNTIOImageKeyWidth"] as Double).toInt()
         val height = (input["RNTIOImageKeyHeight"] as Double).toInt()
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val intbuffer = ByteBuffer.wrap(bytes).asIntBuffer()
-        val ints = IntArray(intbuffer.remaining())
-        intbuffer.get(ints)
-        bitmap.setPixels(ints, 0, 0, 0, 0, width, height)
-        bitmap
+        bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
       }
-      2.toDouble() -> { // RNTIOImageDataTypeBGRA
+      ImageFormat.BGRA -> {
         val string = input["RNTIOImageKeyData"] as String
-        val bytes = Base64.decode(string, Base64.DEFAULT)
         val width = (input["RNTIOImageKeyWidth"] as Double).toInt()
         val height = (input["RNTIOImageKeyHeight"] as Double).toInt()
-        val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)      // TODO: No BGRA?
-        val intbuffer = ByteBuffer.wrap(bytes).asIntBuffer()
-        val ints = IntArray(intbuffer.remaining())
-        intbuffer.get(ints)
-        bitmap.setPixels(ints, 0, 0, 0, 0, width, height)
-        bitmap
+        bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
       }
-      3.toDouble() -> { // RNTIOImageDataTypeJPEG
-        val string = input["RNTIOImageKeyData"] as String
-        val bytes = Base64.decode(string, Base64.DEFAULT)
-        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+      ImageFormat.JPEG -> {
+        val base64 = input["RNTIOImageKeyData"] as String
+        bitmapForBase64Data(base64)
       }
-      4.toDouble() -> { // RNTIOImageDataTypePNG
-        val string = input["RNTIOImageKeyData"] as String
-        val bytes = Base64.decode(string, Base64.DEFAULT)
-        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+      ImageFormat.PNG -> {
+        val base64 = input["RNTIOImageKeyData"] as String
+        bitmapForBase64Data(base64)
       }
-      5.toDouble() -> { // RNTIOImageDataTypeFile
+      ImageFormat.File -> {
         val filepath = input["RNTIOImageKeyData"] as String
         BitmapFactory.decodeFile(filepath)
       }
-      6.toDouble() -> { // RNTIOImageDataTypeAsset
+      ImageFormat.Asset -> {
         val name = input["RNTIOImageKeyData"] as String
         val stream = reactApplicationContext.assets.open(name)
         BitmapFactory.decodeStream(stream);
       }
-      else -> null
+      ImageFormat.Unknown -> {
+        null
+      }
     }
-
-    return bitmap
   }
 }
