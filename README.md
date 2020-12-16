@@ -24,14 +24,14 @@ import TensorioTflite from "react-native-tensorio-tflite";
 // If you're using images acquire the image object constants you need
 const { imageKeyFormat, imageKeyData, imageTypeAsset } = TensorioTflite.getConstants();
 
-// In our example we have an image bundled as an asset on ios and android
+// In our example we have an image bundled as an image asset on ios and an asset on android
 const imageAsset = Platform.OS === 'ios' ? 'elephant' : 'elephant.jpg';
 
 // To use the model load it and give it a name. This model is bundled in the application.
 TensorioTflite.load('image-classification.tiobundle', 'classifier');
 
 // Call run using the name you gave the model and its expected inputs.
-// All model functions return promises, so you can use `then` on the results and `catch` for errors
+// All model functions return promises, so you can use `then` on the result and `catch` for errors
 
 TensorioTflite
   .run('classifier', {
@@ -41,10 +41,10 @@ TensorioTflite
     }
   })
   .then(output => {
-    // Do something without output
+    // Do something with model output
   })
   .catch(error => {
-	// Handle error
+    // Handle error
   });
 
 // When you're done with the model always unload it to free up the underlying resources
@@ -133,7 +133,7 @@ import TensorioTflite from "react-native-tensorio-tflite";
 
 TensorioTflite.load('model.tiobundle', 'model');
 
-TensorioTflite.load
+TensorioTflite
   .run('model', {
     'x': [42]
   })
@@ -142,7 +142,7 @@ TensorioTflite.load
     console.log(y);
   })
   .catch(error => {
-	// Handle error
+    // Handle error
   });
 
 TensorioTflite.unload('model');
@@ -207,9 +207,9 @@ Let's see how to use this model in React Native. Assuming we have some base64 en
 import TensorioTflite from "react-native-tensorio-tflite";
 const { imageKeyFormat, imageKeyData, imageKeyOrientation, imageOrientationUp, imageTypeJPEG } = TensorioTflite.getConstants();
 
-var data = 'data:image/jpeg;base64,' + some.data;
-var orientation = imageOrientationUp;
-var format = imageTypeJPEG;
+const data = 'data:image/jpeg;base64,' + some.data;
+const orientation = imageOrientationUp;
+const format = imageTypeJPEG;
 
 TensorioTflite.load('mobilenet.tiobundle', 'model');
 
@@ -226,7 +226,7 @@ TensorioTflite
     console.log(classifications);
   })
   .catch(error => {
-  	// Handle error
+    // Handle error
   });
 
 TensorioTflite.unload('model');
@@ -240,8 +240,8 @@ TensorioTflite supports image data in a number of formats. Imagine instead that 
 import TensorioTflite from "react-native-tensorio-tflite";
 const { imageKeyFormat, imageKeyData, imageTypeFile } = TensorioTflite.getConstants();
 
-var data = '/path/to/image.png';
-var format = imageTypeFile;
+const data = '/path/to/image.png';
+const format = imageTypeFile;
 
 TensorioTflite.load('mobilenet.tiobundle', 'model');
 
@@ -257,7 +257,7 @@ TensorioTflite
     console.log(classifications);
   })
   .catch(error => {
-  	// Handle error
+    // Handle error
   });
 
 TensorioTflite.unload('model');
@@ -269,11 +269,11 @@ Another use case might be real time pixel buffer data coming from a device camer
 import TensorioTflite from "react-native-tensorio-tflite";
 const { imageKeyFormat, imageKeyData, imageKeyOrientation, imageKeyWidth, imageKeyHeight, imageTypeBGRA, imageOrientationRight } = TensorioTflite.getConstants();
 
-var data; // pixel buffer data as a base64 encoded string
-var format = imageTypeBGRA; // ios camera format
-var orientation = imageOrientationRight; // ios camera orientation
-var width = 640;
-var height = 480;
+const data; // pixel buffer data as a base64 encoded string
+const format = imageTypeBGRA; // ios camera format
+const orientation = imageOrientationRight; // ios camera orientation
+const width = 640;
+const height = 480;
 
 TensorioTflite.load('mobilenet.tiobundle', 'model');
 
@@ -288,7 +288,7 @@ TensorioTflite
     }
   })
   .then(output => {
-    classifications = output['classification'];
+    const classifications = output['classification'];
     console.log(classifications);
   })
   .catch(error => {
@@ -313,8 +313,8 @@ TensorioTflite
     }
   }) 
   .then(output => {
-    var image = output['image'];
-    var data = 'data:image/jpeg;base64,' + image;
+    const image = output['image'];
+    const data = 'data:image/jpeg;base64,' + image;
   })
   .catch(error => {
     // Handle error
@@ -327,11 +327,11 @@ Listed below are the functions and constants exported by this module.
 
 ### Functions
 
-All functions execute synchronously although they return promises.
+All functions execute synchronously and return promises.
 
 #### load(path, name): Promise\<boolean\>
 
-Loads the model at the given path and assigns it the name. If the path is a relative path the model will be loaded from the application bundle. Pass the name to the other module functions that interact with models. Returns a boolean promise that resolves to true if the model was loaded and false otherwise.
+Loads the model at the given path and assigns it the name. If the path is a relative path the model will be loaded from the application bundle on iOS or as an asset on Android. Use the name with the other module functions that interact with models. Returns a boolean promise that resolves to true if the model was loaded and false otherwise.
 
 Usage:
 
@@ -341,7 +341,7 @@ TensorioTflite.load('model.tiobundle', 'model');
 
 #### unload(name): Promise\<boolean\>
 
-Unloads a model and frees the underlying resources. Always unload models when you are done with them to free the underlying resources associated with them.
+Unloads a model and frees the underlying resources. Resolvesto true if successful and false otherwise. Always unload models when you are done with them to free the underlying resources associated with them.
 
 Usage:
 
@@ -373,7 +373,7 @@ TensorioTflite
 
 #### isTrainable(name): Promise\<boolean\>
 
-Resolve to true or false indicating whether the model is trainable or not. TF Lite models always resolve isTrainable to false.
+Resolve to true or false indicating whether the model is trainable or not. TF Lite models always resolve to false.
 
 Usage:
 
@@ -382,7 +382,7 @@ TensorioTflite.isTrainable('model')
   .then(trains => {
     console.log(trains);
   })
-  .catch(error) => {
+  .catch(error => {
     // Handle error
   });
 ```
@@ -464,6 +464,7 @@ imageTypeBGRA
 imageTypeJPEG
 imageTypePNG
 imageTypeFile
+imageTypeAsset
 ```
 
 ##### imageTypeUnknown
@@ -488,7 +489,11 @@ PNG image data. The base64 encoded string must be prefixed with `data:image/png;
 
 ##### imageTypeFile
 
-Indicates tha the image data will contain the fully qualified path to an image on the filesystem.
+Indicates that the image data will contain the fully qualified path to an image on the filesystem.
+
+##### imageTypeAsset
+
+Indicates that the image data will contain the name of an image asset on iOS and the relative path to an image asset on Android.
 
 #### Image Orientations
 
