@@ -36,7 +36,7 @@
   ],
   "repository": "https://github.com/doc-ai/react-native-tensorio-tflite",
   "author": "doc.ai <philip@doc.ai> (https://github.com/doc-ai)",
-  "license": "MIT",
+  "license": "APACHE 2",
   "bugs": {
     "url": "https://github.com/doc-ai/react-native-tensorio-tflite/issues"
   },
