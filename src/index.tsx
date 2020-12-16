@@ -37,6 +37,7 @@ type TensorioTfliteType = {
    */
 
   topN(count: number, threshold: number, classifications: object): Promise<object>
+
 };
 
 const { TensorioTflite } = NativeModules;

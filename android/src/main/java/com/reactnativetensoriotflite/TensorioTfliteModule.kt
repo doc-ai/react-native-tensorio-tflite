@@ -14,21 +14,37 @@ import java.io.File
 import java.lang.Exception
 import java.nio.ByteBuffer
 
+const val RNTIOImageKeyData = "RNTIOImageKeyData"
+const val RNTIOImageKeyFormat = "RNTIOImageKeyFormat"
+const val RNTIOImageKeyWidth = "RNTIOImageKeyWidth"
+const val RNTIOImageKeyHeight = "RNTIOImageKeyHeight"
+const val RNTIOImageKeyOrientation = "RNTIOImageKeyOrientation"
+
 class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-  // RNTIOImageKeyFormat
-    // RNTIOImageKeyData
-    // RNTIOImageKeyWidth
-    // RNTIOImageKeyHeight
-
   enum class ImageFormat(val value: Int) {
-    Unknown(0), // RNTIOImageDataTypeUnknown
-    ARGB(1),    // RNTIOImageDataTypeARGB
-    BGRA(2),    // RNTIOImageDataTypeBGRA
-    JPEG(3),    // RNTIOImageDataTypeJPEG
-    PNG(4),     // RNTIOImageDataTypePNG
-    File(5),    // RNTIOImageDataTypeFile
-    Asset(6);   // RNTIOImageDataTypeAsset
+    Unknown (0),
+    ARGB    (1),
+    BGRA    (2),
+    JPEG    (3),
+    PNG     (4),
+    File    (5),
+    Asset   (6);
+
+    companion object {
+      fun valueOf(value: Int) = ImageFormat.values().first { it.value == value }
+    }
+  }
+
+  enum class ImageOrientation(val value: Int) {
+    Up            (1),
+    UpMirrored    (2),
+    Down          (3),
+    DownMirrored  (4),
+    LeftMirrored  (5),
+    Right         (6),
+    RightMirrored (7),
+    Left          (8);
 
     companion object {
       fun valueOf(value: Int) = ImageFormat.values().first { it.value == value }
@@ -57,11 +73,11 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
   override fun getConstants(): Map<String, Any> {
     val constants: HashMap<String, Any> = HashMap()
 
-    constants["imageKeyData"]         = "RNTIOImageKeyData"
-    constants["imageKeyFormat"]       = "RNTIOImageKeyFormat"
-    constants["imageKeyWidth"]        = "RNTIOImageKeyWidth"
-    constants["imageKeyHeight"]       = "RNTIOImageKeyHeight"
-    constants["imageKeyOrientation"]  = "RNTIOImageKeyOrientation"
+    constants["imageKeyData"]         = RNTIOImageKeyData
+    constants["imageKeyFormat"]       = RNTIOImageKeyFormat
+    constants["imageKeyWidth"]        = RNTIOImageKeyWidth
+    constants["imageKeyHeight"]       = RNTIOImageKeyHeight
+    constants["imageKeyOrientation"]  = RNTIOImageKeyOrientation
 
     constants["imageTypeUnknown"]     = ImageFormat.Unknown.value
     constants["imageTypeARGB"]        = ImageFormat.ARGB.value
@@ -71,14 +87,14 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     constants["imageTypeFile"]        = ImageFormat.File.value
     constants["imageTypeAsset"]       = ImageFormat.Asset.value
 
-    constants["imageOrientationUp"]             = 1
-    constants["imageOrientationUpMirrored"]     = 2
-    constants["imageOrientationDown"]           = 3
-    constants["imageOrientationDownMirrored"]   = 4
-    constants["imageOrientationLeftMirrored"]   = 5
-    constants["imageOrientationRight"]          = 6
-    constants["imageOrientationRightMirrored"]  = 7
-    constants["imageOrientationLeft"]           = 8
+    constants["imageOrientationUp"]             = ImageOrientation.Up.value
+    constants["imageOrientationUpMirrored"]     = ImageOrientation.UpMirrored.value
+    constants["imageOrientationDown"]           = ImageOrientation.Down.value
+    constants["imageOrientationDownMirrored"]   = ImageOrientation.DownMirrored.value
+    constants["imageOrientationLeftMirrored"]   = ImageOrientation.LeftMirrored.value
+    constants["imageOrientationRight"]          = ImageOrientation.Right.value
+    constants["imageOrientationRightMirrored"]  = ImageOrientation.RightMirrored.value
+    constants["imageOrientationLeft"]           = ImageOrientation.Left.value
 
     return constants
   }
@@ -90,9 +106,9 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
 
   @ReactMethod
   fun load(path: String, name: String?, promise: Promise) {
-    try {
+    val hashname = name ?: path
 
-      val hashname = name ?: path
+    try {
 
       // Reject if model with name is already loaded
 
@@ -253,9 +269,11 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     for (layer in model.io.inputs.all()) {
       layer.doCase(
         {
+          // Vector layer
           preparedInputs[layer.name] = inputs[layer.name] as Any
         },
         {
+          // Image layer
           val bitmap = bitmapForInput(inputs[layer.name] as Map<String, Any>)
           if (bitmap != null) {
             preparedInputs[layer.name] = bitmap
@@ -264,6 +282,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
           }
         },
         {
+          // Bytes layer
           preparedInputs[layer.name] = inputs[layer.name] as Any
         })
     }
@@ -287,9 +306,11 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     for (layer in model.io.outputs.all()) {
       layer.doCase(
         {
+          // Vector layer
           preparedOutputs[layer.name] = outputs[layer.name] as Any
         },
         {
+          // Image layer
           val encoded = base64JPEGDataForBitmap(outputs[layer.name] as Bitmap)
           if (encoded != null) {
             preparedOutputs[layer.name] = encoded
@@ -298,6 +319,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
           }
         },
         {
+          // Bytes layer
           preparedOutputs[layer.name] = outputs[layer.name] as Any
         })
     }
@@ -361,31 +383,31 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
 
     return when (format) {
       ImageFormat.ARGB -> {
-        val string = input["RNTIOImageKeyData"] as String
-        val width = (input["RNTIOImageKeyWidth"] as Double).toInt()
-        val height = (input["RNTIOImageKeyHeight"] as Double).toInt()
+        val string = input[RNTIOImageKeyData] as String
+        val width = (input[RNTIOImageKeyWidth] as Double).toInt()
+        val height = (input[RNTIOImageKeyHeight] as Double).toInt()
         bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
       }
       ImageFormat.BGRA -> {
-        val string = input["RNTIOImageKeyData"] as String
-        val width = (input["RNTIOImageKeyWidth"] as Double).toInt()
-        val height = (input["RNTIOImageKeyHeight"] as Double).toInt()
+        val string = input[RNTIOImageKeyData] as String
+        val width = (input[RNTIOImageKeyWidth] as Double).toInt()
+        val height = (input[RNTIOImageKeyHeight] as Double).toInt()
         bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
       }
       ImageFormat.JPEG -> {
-        val base64 = input["RNTIOImageKeyData"] as String
+        val base64 = input[RNTIOImageKeyData] as String
         bitmapForBase64Data(base64)
       }
       ImageFormat.PNG -> {
-        val base64 = input["RNTIOImageKeyData"] as String
+        val base64 = input[RNTIOImageKeyData] as String
         bitmapForBase64Data(base64)
       }
       ImageFormat.File -> {
-        val filepath = input["RNTIOImageKeyData"] as String
+        val filepath = input[RNTIOImageKeyData] as String
         BitmapFactory.decodeFile(filepath)
       }
       ImageFormat.Asset -> {
-        val name = input["RNTIOImageKeyData"] as String
+        val name = input[RNTIOImageKeyData] as String
         val stream = reactApplicationContext.assets.open(name)
         BitmapFactory.decodeStream(stream);
       }

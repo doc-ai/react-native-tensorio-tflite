@@ -2,32 +2,31 @@ import * as React from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
 import TensorioTflite from 'react-native-tensorio-tflite';
 
+// @ts-ignore
+const { imageKeyFormat, imageKeyData, imageTypeAsset } = TensorioTflite.getConstants();
+const imageAsset = Platform.OS === 'ios' ? 'elephant' : 'elephant.jpg';
+
 export default function App() {
   const [results, setResults] = React.useState<object | undefined>();
 
   React.useEffect(() => {
     TensorioTflite.load('image-classification.tiobundle', 'classifier');
     
-    // TensorioTflite.imageKeyData    RNTIOImageKeyData
-    // TensorioTflite.imageKeyFormat  RNTIOImageKeyFormat 
-    // TensorioTflite.imageTypeAsset  RNTIOImageDataTypeAsset (6)
-
-    const imageAsset = Platform.OS === 'ios' ? 'elephant' : 'elephant.jpg';
-    const imageFormat = 6; // asset
-  
-    TensorioTflite.run('classifier', {
-      'image': {
-        // 'RNTIOImageKeyFormat': imageFormat,
-        // 'RNTIOImageKeyData': imageAsset
-        
-        // Can export from native code and works fine, but typescript raises type error
-        [TensorioTflite.imageKeyFormat]: TensorioTflite.imageTypeAsset,
-        [TensorioTflite.imageKeyData]: imageAsset
-      }
-    }).then((output) => {
-      // @ts-ignore
-      return TensorioTflite.topN(5, 0.1, output['classification'])
-    }).then(setResults);
+    TensorioTflite
+      .run('classifier', {
+        'image': {
+          [imageKeyFormat]: imageTypeAsset,
+          [imageKeyData]: imageAsset
+        }
+      })
+      .then(output => {
+        // @ts-ignore
+        return TensorioTflite.topN(5, 0.1, output['classification'])
+      })
+      .then(setResults)
+      .catch(error => {
+        console.log(error)
+      });
 
     TensorioTflite.unload('classifier');
   }, []);
