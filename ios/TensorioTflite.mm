@@ -71,6 +71,43 @@ RCT_ENUM_CONVERTER(CGImagePropertyOrientation, (@{
 
 RCT_EXPORT_MODULE()
 
+// MARK: - React Native Overrides
+
+- (NSDictionary *)constantsToExport {
+    return @{
+        @"imageKeyData":        RNTIOImageKeyData,
+        @"imageKeyFormat":      RNTIOImageKeyFormat,
+        @"imageKeyWidth":       RNTIOImageKeyWidth,
+        @"imageKeyHeight":      RNTIOImageKeyHeight,
+        @"imageKeyOrientation": RNTIOImageKeyOrientation,
+        
+        @"imageTypeUnknown":    @(RNTIOImageDataTypeUnknown),
+        @"imageTypeARGB":       @(RNTIOImageDataTypeARGB),
+        @"imageTypeBGRA":       @(RNTIOImageDataTypeBGRA),
+        @"imageTypeJPEG":       @(RNTIOImageDataTypeJPEG),
+        @"imageTypePNG":        @(RNTIOImageDataTypePNG),
+        @"imageTypeFile":       @(RNTIOImageDataTypeFile),
+        @"imageTypeAsset":      @(RNTIOImageDataTypeAsset),
+        
+        @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
+        @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
+        @"imageOrientationDown":            @(kCGImagePropertyOrientationDown),
+        @"imageOrientationDownMirrored":    @(kCGImagePropertyOrientationDownMirrored),
+        @"imageOrientationLeftMirrored":    @(kCGImagePropertyOrientationLeftMirrored),
+        @"imageOrientationRight":           @(kCGImagePropertyOrientationRight),
+        @"imageOrientationRightMirrored":   @(kCGImagePropertyOrientationRightMirrored),
+        @"imageOrientationLeft":            @(kCGImagePropertyOrientationLeft)
+    };
+}
+
+- (dispatch_queue_t)methodQueue {
+    return dispatch_get_main_queue();
+}
+
++ (BOOL)requiresMainQueueSetup {
+    return YES;
+}
+
 /// Bridged method that loads a model given a model path. Relative paths will be loaded from the application bundle.
 
 RCT_EXPORT_METHOD(load:(NSString*)path
@@ -188,6 +225,8 @@ RCT_EXPORT_METHOD(run:(NSString*)name
     
     resolve(preparedResults);
 }
+
+// MARK: - Run Utilities
 
 /// Returns the names of the model inputs, derived from a model bundle's model.json file.
 
@@ -405,43 +444,6 @@ RCT_EXPORT_METHOD(topN:(NSUInteger)count
                   withRejecter:(RCTPromiseRejectBlock)reject) {
     NSDictionary *topN = [classifications topN:count threshold:threshold];
     resolve(topN);
-}
-
-// MARK: - React Native Overrides
-
-- (NSDictionary *)constantsToExport {
-    return @{
-        @"imageKeyData":        RNTIOImageKeyData,
-        @"imageKeyFormat":      RNTIOImageKeyFormat,
-        @"imageKeyWidth":       RNTIOImageKeyWidth,
-        @"imageKeyHeight":      RNTIOImageKeyHeight,
-        @"imageKeyOrientation": RNTIOImageKeyOrientation,
-        
-        @"imageTypeUnknown":    @(RNTIOImageDataTypeUnknown),
-        @"imageTypeARGB":       @(RNTIOImageDataTypeARGB),
-        @"imageTypeBGRA":       @(RNTIOImageDataTypeBGRA),
-        @"imageTypeJPEG":       @(RNTIOImageDataTypeJPEG),
-        @"imageTypePNG":        @(RNTIOImageDataTypePNG),
-        @"imageTypeFile":       @(RNTIOImageDataTypeFile),
-        @"imageTypeAsset":      @(RNTIOImageDataTypeAsset),
-        
-        @"imageOrientationUp":              @(kCGImagePropertyOrientationUp),
-        @"imageOrientationUpMirrored":      @(kCGImagePropertyOrientationUpMirrored),
-        @"imageOrientationDown":            @(kCGImagePropertyOrientationDown),
-        @"imageOrientationDownMirrored":    @(kCGImagePropertyOrientationDownMirrored),
-        @"imageOrientationLeftMirrored":    @(kCGImagePropertyOrientationLeftMirrored),
-        @"imageOrientationRight":           @(kCGImagePropertyOrientationRight),
-        @"imageOrientationRightMirrored":   @(kCGImagePropertyOrientationRightMirrored),
-        @"imageOrientationLeft":            @(kCGImagePropertyOrientationLeft)
-    };
-}
-
-- (dispatch_queue_t)methodQueue {
-    return dispatch_get_main_queue();
-}
-
-+ (BOOL)requiresMainQueueSetup {
-    return YES;
 }
 
 @end

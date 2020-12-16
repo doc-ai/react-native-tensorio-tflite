@@ -10,9 +10,46 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import com.facebook.react.bridge.*
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.lang.Exception
+import java.nio.ByteBuffer
+
+const val RNTIOImageKeyData = "RNTIOImageKeyData"
+const val RNTIOImageKeyFormat = "RNTIOImageKeyFormat"
+const val RNTIOImageKeyWidth = "RNTIOImageKeyWidth"
+const val RNTIOImageKeyHeight = "RNTIOImageKeyHeight"
+const val RNTIOImageKeyOrientation = "RNTIOImageKeyOrientation"
 
 class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+
+  enum class ImageFormat(val value: Int) {
+    Unknown (0),
+    ARGB    (1),
+    BGRA    (2),
+    JPEG    (3),
+    PNG     (4),
+    File    (5),
+    Asset   (6);
+
+    companion object {
+      fun valueOf(value: Int) = ImageFormat.values().first { it.value == value }
+    }
+  }
+
+  enum class ImageOrientation(val value: Int) {
+    Up            (1),
+    UpMirrored    (2),
+    Down          (3),
+    DownMirrored  (4),
+    LeftMirrored  (5),
+    Right         (6),
+    RightMirrored (7),
+    Left          (8);
+
+    companion object {
+      fun valueOf(value: Int) = ImageFormat.values().first { it.value == value }
+    }
+  }
 
   /**
    * maps path or model names to loaded models, allowing the module to load,
@@ -33,10 +70,31 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * React Native override for exported constants
    */
 
-  // TODO: implement
-
   override fun getConstants(): Map<String, Any> {
-    var constants: Map<String, Any> = HashMap()
+    val constants: HashMap<String, Any> = HashMap()
+
+    constants["imageKeyData"]         = RNTIOImageKeyData
+    constants["imageKeyFormat"]       = RNTIOImageKeyFormat
+    constants["imageKeyWidth"]        = RNTIOImageKeyWidth
+    constants["imageKeyHeight"]       = RNTIOImageKeyHeight
+    constants["imageKeyOrientation"]  = RNTIOImageKeyOrientation
+
+    constants["imageTypeUnknown"]     = ImageFormat.Unknown.value
+    constants["imageTypeARGB"]        = ImageFormat.ARGB.value
+    constants["imageTypeBGRA"]        = ImageFormat.BGRA.value
+    constants["imageTypeJPEG"]        = ImageFormat.JPEG.value
+    constants["imageTypePNG"]         = ImageFormat.PNG.value
+    constants["imageTypeFile"]        = ImageFormat.File.value
+    constants["imageTypeAsset"]       = ImageFormat.Asset.value
+
+    constants["imageOrientationUp"]             = ImageOrientation.Up.value
+    constants["imageOrientationUpMirrored"]     = ImageOrientation.UpMirrored.value
+    constants["imageOrientationDown"]           = ImageOrientation.Down.value
+    constants["imageOrientationDownMirrored"]   = ImageOrientation.DownMirrored.value
+    constants["imageOrientationLeftMirrored"]   = ImageOrientation.LeftMirrored.value
+    constants["imageOrientationRight"]          = ImageOrientation.Right.value
+    constants["imageOrientationRightMirrored"]  = ImageOrientation.RightMirrored.value
+    constants["imageOrientationLeft"]           = ImageOrientation.Left.value
 
     return constants
   }
@@ -48,23 +106,28 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
 
   @ReactMethod
   fun load(path: String, name: String?, promise: Promise) {
+    val hashname = name ?: path
+
     try {
 
-      val hashname = if (name == null) {
-        path
-      } else {
-        name
-      }
+      // Reject if model with name is already loaded
 
       if (models[hashname] != null) {
-        // TODO: reject
+        promise.reject("ai.doc.tensorio.tflite.rn:load:name-in-use", "Name already use. Use a different name, and do not reload a model without unloading it first")
         return
       }
 
-      // TODO: Fork on Asset vs Filepath loading
+      // Load the model
 
-      val bundle = ModelBundle.bundleWithAsset(reactApplicationContext, path)
+      val bundle = if (isAbsoluteFilepath(path)) {
+        ModelBundle.bundleWithFile(File(path))
+      } else {
+        ModelBundle.bundleWithAsset(reactApplicationContext, path)
+      }
+
       val model = bundle.newModel() as TFLiteModel
+
+      // Cache it
 
       models[hashname] = model
       promise.resolve(true)
@@ -81,7 +144,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
   @ReactMethod
   fun unload(name: String, promise: Promise) {
     if (models[name] == null) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:unload:model-not-found", "No model with this name was found")
       return
     }
 
@@ -109,7 +172,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
   @ReactMethod
   fun run(name: String, data: ReadableMap, promise: Promise) {
     if (models[name] == null) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:run:model-not-found", "No model with this name was found")
       return
     }
 
@@ -119,7 +182,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     // Ensure that the provided keys match the model's expected keys, or return an error
 
     if (!model.io.inputs.keys().equals(hashmap.keys)) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:run:input-mismatch", "Provided inputs do not match expected inputs")
       return
     }
 
@@ -128,7 +191,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     val preparedInputs = preparedInputs(hashmap, model)
 
     if (preparedInputs == null) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:run:prepared-inputs", "Unable to prepare inputs from react native for inference")
       return
     }
 
@@ -139,7 +202,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     try {
       outputs = model.runOn(preparedInputs)
     } catch (e: Exception) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:run:inference-exception", e)
       return
     }
 
@@ -148,7 +211,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     val preparedOutputs = preparedOutputs(outputs, model)
 
     if (preparedOutputs == null) {
-      // TODO: reject
+      promise.reject("ai.doc.tensorio.tflite.rn:run:prepared-outputs", "Unable to prepare outputs for return to react native")
       return
     }
 
@@ -182,7 +245,14 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
 
   // Load Utilities
 
-  // ...
+  /**
+   * Returns true if this is an absolute filepath, false otherwise. Filepaths that are not absolute
+   * will be treated as paths to Assets rather than files on the filesystem.
+   */
+
+  fun isAbsoluteFilepath(path: String): Boolean {
+    return path.startsWith("file:/") || path.startsWith("/")
+  }
 
   // Input/Output Preparation
 
@@ -192,16 +262,18 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * taken as is.
    */
 
-  private fun preparedInputs(inputs: Map<String, Any>, model: Model): Map<String, Any> {
+  private fun preparedInputs(inputs: Map<String, Any>, model: Model): Map<String, Any>? {
     val preparedInputs = HashMap<String, Any>()
     var error = false
 
     for (layer in model.io.inputs.all()) {
       layer.doCase(
         {
+          // Vector layer
           preparedInputs[layer.name] = inputs[layer.name] as Any
         },
         {
+          // Image layer
           val bitmap = bitmapForInput(inputs[layer.name] as Map<String, Any>)
           if (bitmap != null) {
             preparedInputs[layer.name] = bitmap
@@ -210,14 +282,13 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
           }
         },
         {
+          // Bytes layer
           preparedInputs[layer.name] = inputs[layer.name] as Any
         })
     }
 
-    // TODO: error handling
-
     if (error) {
-
+      return null
     }
 
     return preparedInputs
@@ -228,16 +299,18 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * to base64 strings. Other outputs are taken as is.
    */
 
-  private fun preparedOutputs(outputs: Map<String, Any>, model: Model): Map<String, Any> {
+  private fun preparedOutputs(outputs: Map<String, Any>, model: Model): Map<String, Any>? {
     val preparedOutputs = HashMap<String, Any>()
     var error = false
 
     for (layer in model.io.outputs.all()) {
       layer.doCase(
         {
+          // Vector layer
           preparedOutputs[layer.name] = outputs[layer.name] as Any
         },
         {
+          // Image layer
           val encoded = base64JPEGDataForBitmap(outputs[layer.name] as Bitmap)
           if (encoded != null) {
             preparedOutputs[layer.name] = encoded
@@ -246,14 +319,13 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
           }
         },
         {
+          // Bytes layer
           preparedOutputs[layer.name] = outputs[layer.name] as Any
         })
     }
 
-    // TODO: error handling
-
     if (error) {
-
+      return null
     }
 
     return preparedOutputs
@@ -266,7 +338,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * See https://stackoverflow.com/questions/9224056/android-bitmap-to-base64-string
    */
 
-  private fun base64JPEGDataForBitmap(bitmap: Bitmap): String {
+  private fun base64JPEGDataForBitmap(bitmap: Bitmap): String? {
     val stream = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
 
@@ -275,29 +347,73 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
   }
 
   /**
+   * Converts base64 encoded JPEG or PNG to Bitmap
+   */
+
+  private fun bitmapForBase64Data(string: String): Bitmap? {
+    val bytes = Base64.decode(string, Base64.DEFAULT)
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+  }
+
+  /**
+   * Converts base64 encoded pixels to Bitmap
+   */
+
+  private fun bitmapForBase64Pixels(string: String, width: Int, height: Int, format: Bitmap.Config): Bitmap {
+    val bytes = Base64.decode(string, Base64.DEFAULT)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val intbuffer = ByteBuffer.wrap(bytes).asIntBuffer()
+    val ints = IntArray(intbuffer.remaining())
+
+    intbuffer.get(ints)
+    bitmap.setPixels(ints, 0, 0, 0, 0, width, height)
+
+    return bitmap
+  }
+
+  /**
    * Prepares a pixel buffer input given an image encoding dictionary sent from javascript,
    * converting a base64 encoded string or reading data from the file system.
    */
 
+  // TODO: Test all conversions
+
   private fun bitmapForInput(input: Map<String, Any>): Bitmap? {
-    val format = input["RNTIOImageKeyFormat"] as Double // double! gross
+    val format = ImageFormat.valueOf((input["RNTIOImageKeyFormat"] as Double).toInt())
 
-    val bitmap =  when (format) {
-      0.toDouble() -> null // RNTIOImageDataTypeUnknown
-      1.toDouble() -> null // RNTIOImageDataTypeARGB
-      2.toDouble() -> null // RNTIOImageDataTypeBGRA
-      3.toDouble() -> null // RNTIOImageDataTypeJPEG
-      4.toDouble() -> null // RNTIOImageDataTypePNG
-      5.toDouble() -> null // RNTIOImageDataTypeFile
-      6.toDouble() -> { // RNTIOImageDataTypeAsset
-        val name = input["RNTIOImageKeyData"] as String
-        val stream = reactApplicationContext.assets.open(name)
-        val bitmap = BitmapFactory.decodeStream(stream);
-        bitmap
+    return when (format) {
+      ImageFormat.ARGB -> {
+        val string = input[RNTIOImageKeyData] as String
+        val width = (input[RNTIOImageKeyWidth] as Double).toInt()
+        val height = (input[RNTIOImageKeyHeight] as Double).toInt()
+        bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
       }
-      else -> null
+      ImageFormat.BGRA -> {
+        val string = input[RNTIOImageKeyData] as String
+        val width = (input[RNTIOImageKeyWidth] as Double).toInt()
+        val height = (input[RNTIOImageKeyHeight] as Double).toInt()
+        bitmapForBase64Pixels(string, width, height, Bitmap.Config.ARGB_8888)
+      }
+      ImageFormat.JPEG -> {
+        val base64 = input[RNTIOImageKeyData] as String
+        bitmapForBase64Data(base64)
+      }
+      ImageFormat.PNG -> {
+        val base64 = input[RNTIOImageKeyData] as String
+        bitmapForBase64Data(base64)
+      }
+      ImageFormat.File -> {
+        val filepath = input[RNTIOImageKeyData] as String
+        BitmapFactory.decodeFile(filepath)
+      }
+      ImageFormat.Asset -> {
+        val name = input[RNTIOImageKeyData] as String
+        val stream = reactApplicationContext.assets.open(name)
+        BitmapFactory.decodeStream(stream);
+      }
+      ImageFormat.Unknown -> {
+        null
+      }
     }
-
-    return bitmap
   }
 }
