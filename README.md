@@ -341,7 +341,7 @@ TensorioTflite.load('model.tiobundle', 'model');
 
 #### unload(name): Promise\<boolean\>
 
-Unloads a model and frees the underlying resources. Resolvesto true if successful and false otherwise. Always unload models when you are done with them to free the underlying resources associated with them.
+Unloads a model and frees the underlying resources. Resolves to true if successful and false otherwise. Always unload models when you are done with them to free the underlying resources associated with them.
 
 Usage:
 
