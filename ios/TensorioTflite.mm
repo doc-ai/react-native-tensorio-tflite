@@ -288,6 +288,8 @@ RCT_EXPORT_METHOD(run:(NSString*)name
             preparedInputs[layer.name] = inputs[layer.name];
         } caseString:^(TIOStringLayerDescription * _Nonnull stringDescription) {
             preparedInputs[layer.name] = inputs[layer.name];
+        } caseScalar:^(TIOScalarLayerDescription * _Nonnull scalarDescription) {
+            preparedInputs[layer.name] = inputs[layer.name];
         }];
     }
     
@@ -316,6 +318,8 @@ RCT_EXPORT_METHOD(run:(NSString*)name
         } caseVector:^(TIOVectorLayerDescription * _Nonnull vectorDescription) {
             preparedOutputs[layer.name] = outputs[layer.name];
         } caseString:^(TIOStringLayerDescription * _Nonnull stringDescription) {
+            preparedOutputs[layer.name] = outputs[layer.name];
+        } caseScalar:^(TIOScalarLayerDescription * _Nonnull scalarDescription) {
             preparedOutputs[layer.name] = outputs[layer.name];
         }];
     }
