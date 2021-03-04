@@ -8,6 +8,10 @@ def add_flipper_pods!
   pod 'FlipperKit/SKIOSNetworkPlugin', version, :configuration => 'Debug'
   pod 'FlipperKit/FlipperKitUserDefaultsPlugin', version, :configuration => 'Debug'
   pod 'FlipperKit/FlipperKitReactPlugin', version, :configuration => 'Debug'
+
+  # Flipper seems broken?
+  # https://github.com/facebook/react-native/issues/30836
+  pod 'Flipper-Folly', '2.3.0', :configuration => 'Debug'
 end
 # Post Install processing for Flipper
 def flipper_post_install(installer)
@@ -62,12 +66,10 @@ target 'TensorioTfliteExample' do
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
   
-  # Flipper seems broken?
-  # https://github.com/facebook/react-native/issues/30836
+  add_flipper_pods!
   
-  # add_flipper_pods!
   post_install do |installer|
-    # flipper_post_install(installer)
+    flipper_post_install(installer)
     
     # https://github.com/facebook/react-native/issues/28503#issuecomment-710041013
     installer.pods_project.targets.each do |target|
