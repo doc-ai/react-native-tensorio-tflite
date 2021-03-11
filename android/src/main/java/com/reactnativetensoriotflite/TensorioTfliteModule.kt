@@ -250,7 +250,7 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
    * will be treated as paths to Assets rather than files on the filesystem.
    */
 
-  fun isAbsoluteFilepath(path: String): Boolean {
+  private fun isAbsoluteFilepath(path: String): Boolean {
     return path.startsWith("file:/") || path.startsWith("/")
   }
 
@@ -283,6 +283,10 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
         },
         {
           // Bytes layer
+          preparedInputs[layer.name] = inputs[layer.name] as Any
+        },
+        {
+          // Scalar layer
           preparedInputs[layer.name] = inputs[layer.name] as Any
         })
     }
@@ -320,6 +324,10 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
         },
         {
           // Bytes layer
+          preparedOutputs[layer.name] = outputs[layer.name] as Any
+        },
+        {
+          // Scalar layer
           preparedOutputs[layer.name] = outputs[layer.name] as Any
         })
     }
