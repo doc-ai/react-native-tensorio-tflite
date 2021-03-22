@@ -179,10 +179,17 @@ class TensorioTfliteModule(reactContext: ReactApplicationContext) : ReactContext
     val model = models[name] as Model
     val hashmap = MapUtil.toMap(data)
 
+    // Ensure that data is not empty
+
+    if (hashmap.count() == 0) {
+      promise.reject("ai.doc.tensorio.tflite.rn:run:input-empty", "Provided data is empty")
+      return
+    }
+
     // Ensure that the provided keys match the model's expected keys, or return an error
 
     if (!model.io.inputs.keys().equals(hashmap.keys)) {
-      promise.reject("ai.doc.tensorio.tflite.rn:run:input-mismatch", "Provided inputs do not match expected inputs")
+      promise.reject("ai.doc.tensorio.tflite.rn:run:input-mismatch", "Provided data do not match expected inputs")
       return
     }
 
