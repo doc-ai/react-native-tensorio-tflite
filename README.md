@@ -20,7 +20,7 @@ Run pod install in your application's root directory to install the Tensor/IO an
 
 ### Android
 
-Add support for desugaring to your application's main *bundle.gradle* file:
+Add support for desugaring to your application's main *build.gradle* file:
 
 ```gradle
 android {
