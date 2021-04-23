@@ -1,7 +1,6 @@
 import { NativeModules } from 'react-native';
 
 type TensorioTfliteType = {
-
   /**
    * Loads a file model or asset model and gives it a name that is used
    * by the remaining functions.
@@ -18,7 +17,7 @@ type TensorioTfliteType = {
    * @param name The name you gave to the model.
    */
 
-  unload(name: string): Promise<boolean>
+  unload(name: string): Promise<boolean>;
 
   /**
    * Performs inference with a model.
@@ -26,7 +25,7 @@ type TensorioTfliteType = {
    * @param data The Object data to perform inference on
    */
 
-  run(name: string, data: object): Promise<object>
+  run(name: string, data: object): Promise<object>;
 
   /**
    * An image classification utility for finding the top N image classification
@@ -36,8 +35,11 @@ type TensorioTfliteType = {
    * @param classifications The complete classifications object returned by the model
    */
 
-  topN(count: number, threshold: number, classifications: object): Promise<object>
-
+  topN(
+    count: number,
+    threshold: number,
+    classifications: object
+  ): Promise<object>;
 };
 
 const { TensorioTflite } = NativeModules;
