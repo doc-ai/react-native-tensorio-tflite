@@ -124,6 +124,50 @@ public class ArrayUtil {
     return array;
   }
 
+  // +@pdow
+  public static WritableArray toWritableArray(boolean[] array) {
+    WritableArray writableArray = Arguments.createArray();
+
+    for (boolean b : array) {
+      writableArray.pushBoolean(b);
+    }
+
+    return writableArray;
+  }
+
+  // +@pdow
+  public static WritableArray toWritableArray(double[] array) {
+    WritableArray writableArray = Arguments.createArray();
+
+    for (double v : array) {
+      writableArray.pushDouble(v);
+    }
+
+    return writableArray;
+  }
+
+  // +@pdow
+  public static WritableArray toWritableArray(float[] array) {
+    WritableArray writableArray = Arguments.createArray();
+
+    for (float v : array) {
+      writableArray.pushDouble(((Float) v).doubleValue());
+    }
+
+    return writableArray;
+  }
+
+  // +@pdow
+  public static WritableArray toWritableArray(int[] array) {
+    WritableArray writableArray = Arguments.createArray();
+
+    for (int value : array) {
+      writableArray.pushInt(value);
+    }
+
+    return writableArray;
+  }
+
   public static WritableArray toWritableArray(Object[] array) {
     WritableArray writableArray = Arguments.createArray();
 

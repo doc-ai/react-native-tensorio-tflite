@@ -157,6 +157,34 @@ public class MapUtil {
         writableMap.putString((String) pair.getKey(), (String) value);
       } else if (value instanceof Map) {
         writableMap.putMap((String) pair.getKey(), MapUtil.toWritableMap((Map<String, Object>) value));
+      } else if (value instanceof boolean[] ) {
+         // +@pdow
+        if ( ((boolean[]) value).length == 1 ) {
+          writableMap.putBoolean((String) pair.getKey(), ((boolean[]) value)[0]);
+        } else {
+          writableMap.putArray((String) pair.getKey(), ArrayUtil.toWritableArray((boolean[]) value));
+        }
+      } else if (value instanceof double[] ) {
+         // +@pdow
+        if ( ((double[]) value).length == 1 ) {
+          writableMap.putDouble((String) pair.getKey(), ((double[]) value)[0]);
+        } else {
+          writableMap.putArray((String) pair.getKey(), ArrayUtil.toWritableArray((double[]) value));
+        }
+      } else if (value instanceof float[] ) {
+         // +@pdow
+        if ( ((float[]) value).length == 1 ) {
+          writableMap.putDouble((String) pair.getKey(), ((float[]) value)[0]);
+        } else {
+          writableMap.putArray((String) pair.getKey(), ArrayUtil.toWritableArray((float[]) value));
+        }
+      } else if (value instanceof int[] ) {
+        // +@pdow
+        if ( ((int[]) value).length == 1 ) {
+          writableMap.putInt((String) pair.getKey(), ((int[]) value)[0]);
+        } else {
+          writableMap.putArray((String) pair.getKey(), ArrayUtil.toWritableArray((int[]) value));
+        }
       } else if (value.getClass() != null && value.getClass().isArray()) {
         writableMap.putArray((String) pair.getKey(), ArrayUtil.toWritableArray((Object[]) value));
       }
