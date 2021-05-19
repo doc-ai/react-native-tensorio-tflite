@@ -8,13 +8,69 @@ Tensor/IO for React Native with the TF Lite backend
 npm install react-native-tensorio-tflite
 ```
 
+While in develompent you can add the following to your package.json dependencies section and then npm update or yarn or whatever magic you do:
+
+```json
+"react-native-tensorio-tflite": "https://github.com/doc-ai/react-native-tensorio-tflite.git#dev"
+```
+
 ### iOS
 
 Run pod install in your application's root directory to install the Tensor/IO and TF Lite dependencies.
 
 ### Android
 
+Add support for desugaring to your application's main *build.gradle* file:
+
+```gradle
+android {
+  ...
+  
+  compileOptions {
+    coreLibraryDesugaringEnabled true
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+dependencies {
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+  ...
+}
+```
+
+And add the following aapt and and packaging options:
+
+```
+android {
+  ...
+  
+  aaptOptions {
+    noCompress "tflite"
+  }
+
+  packagingOptions {
+    pickFirst "lib/armeabi-v7a/libc++_shared.so"
+    pickFirst "lib/arm64-v8a/libc++_shared.so"
+    pickFirst "lib/x86/libc++_shared.so"
+    pickFirst "lib/x86_64/libc++_shared.so"
+	
+    pickFirst 'META-INF/ASL-2.0.txt'
+    pickFirst 'draftv4/schema'
+    pickFirst 'draftv3/schema'
+    pickFirst 'META-INF/LICENSE'
+    pickFirst 'META-INF/LGPL-3.0.txt'
+  }
+}
+```
+
 Sync the project's gradle files to install the Tensor/IO and TF Lite dependencies.
+
+You may need to increase the amount of heap memory available to the JVM. If you get an error when you build your application with something about the "Java heap space" add the following to your *gradle.properties*:
+
+```gradle
+org.gradle.jvmargs=-Xms512M -Xmx4g -XX:MaxPermSize=1024m -XX:MaxMetaspaceSize=1g -Dkotlin.daemon.jvm.options="-Xmx1g"
+```
 
 ## Usage
 

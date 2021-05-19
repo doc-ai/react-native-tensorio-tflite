@@ -180,6 +180,15 @@ RCT_EXPORT_METHOD(run:(NSString*)name
         return;
     }
     
+    // Ensure that data is not empty
+    
+    if (inputs.count == 0) {
+        NSString *msg = @"Data is empty. You must provide at least one object for training.";
+        NSError *error = [NSError errorWithDomain:@"" code:0 userInfo:nil];
+        reject(@"", msg, error);
+        return;
+    }
+    
     // Ensure that the provided keys match the model's expected keys, or return an error
     
     NSSet<NSString*> *expectedKeys = [NSSet setWithArray:[self inputKeysForModel:model]];
