@@ -272,13 +272,13 @@ PODS:
     - React-cxxreact (= 0.64.0)
     - React-jsi (= 0.64.0)
     - React-perflogger (= 0.64.0)
-  - TensorFlowLiteC (2.4.0):
-    - TensorFlowLiteC/Core (= 2.4.0)
-  - TensorFlowLiteC/Core (2.4.0)
-  - TensorFlowLiteObjC (2.4.0):
-    - TensorFlowLiteObjC/Core (= 2.4.0)
-  - TensorFlowLiteObjC/Core (2.4.0):
-    - TensorFlowLiteC (= 2.4.0)
+  - TensorFlowLiteC (2.5.0):
+    - TensorFlowLiteC/Core (= 2.5.0)
+  - TensorFlowLiteC/Core (2.5.0)
+  - TensorFlowLiteObjC (2.5.0):
+    - TensorFlowLiteObjC/Core (= 2.5.0)
+  - TensorFlowLiteObjC/Core (2.5.0):
+    - TensorFlowLiteC (= 2.5.0)
   - TensorIO (1.2.5):
     - DSJSONSchemaValidation
     - TensorIO/Core (= 1.2.5)
@@ -422,8 +422,8 @@ SPEC CHECKSUMS:
   React-RCTVibration: 0fd6b21751a33cb72fce1a4a33ab9678416d307a
   React-runtimeexecutor: cad74a1eaa53ee6e7a3620231939d8fe2c6afcf0
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
-  TensorFlowLiteC: 09f8ac75a76caeadb19bcfa694e97454cc1ecf87
-  TensorFlowLiteObjC: 2cf94aac7c183ec3dac786fb96420c2ce6e7b820
+  TensorFlowLiteC: 9115580176f050caa70fea478dba3d5a75c612a4
+  TensorFlowLiteObjC: ca140779f6aa191a28af169a11297feca4040c46
   TensorIO: 5e794ef10ae651002878e05cc3547fddbc3c4de0
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
 
