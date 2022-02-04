@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/doc-ai/react-native-tensorio-tflite#readme",
   "devDependencies": {
-    "@commitlint/config-conventional": "^8.3.4",
+    "@commitlint/config-conventional": "^10.0.0",
     "@react-native-community/bob": "^0.16.2",
     "@react-native-community/eslint-config": "^2.0.0",
     "@release-it/conventional-changelog": "^1.1.4",
